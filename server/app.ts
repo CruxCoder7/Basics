@@ -7,7 +7,7 @@ import prisma from "./db"
 import PlatformError from "./errors/custom-error"
 import { User } from "@prisma/client"
 import bcrypt from "bcrypt"
-import { createToken } from "./utils/JWT"
+import { createToken, verifyToken } from "./utils/JWT"
 import errorHandlerMiddleware from "./errors/errorHandler"
 config()
 
@@ -45,6 +45,13 @@ app.post("/login", async (req: Request, res: Response) => {
   const token = createToken(user)
   res.cookie("access-token", token, { maxAge: 5 * 60 * 60 * 1000 })
   return res.json(user)
+})
+
+app.get("/dashboard", verifyToken, async (req: Request, res: Response) => {
+  res.json({
+    auth: res.locals.authenticated,
+    user: res.locals.user,
+  })
 })
 
 app.use(errorHandlerMiddleware)

@@ -1,6 +1,6 @@
 import { User } from "@prisma/client"
 import { NextFunction, Request, Response } from "express"
-import jwt from "jsonwebtoken"
+import jwt, { JwtPayload } from "jsonwebtoken"
 import UnauthenticatedError from "../errors/unauthenticated"
 import BadRequest from "../errors/bad-request"
 
@@ -18,12 +18,20 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies["access-token"]
   if (!token) throw new UnauthenticatedError("User not authenticated")
 
-  const verify = jwt.verify(token, process.env.JWT_SECRET_KEY!)
-  if (!verify) throw new BadRequest("Invalid creds")
+  const user = jwt.verify(token, process.env.JWT_SECRET_KEY!)
+  if (!user) throw new BadRequest("Invalid creds")
 
-  console.log(verify)
+  console.log(user)
   res.locals.authenticated = true
+  res.locals.user = user
   return next()
 }
 
-export { createToken, verifyToken }
+const isTokenExpired = (token: string) => {
+  const decodedToken = jwt.decode(token)
+  const dateNow = new Date()
+  if (typeof decodedToken !== "string" && decodedToken !== null)
+    return decodedToken.exp! < Math.round(dateNow.getTime() / 1000)
+}
+
+export { createToken, verifyToken, isTokenExpired }
