@@ -13,12 +13,21 @@ config()
 
 const app = express()
 app.use(express.json())
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+)
+
 app.use(urlencoded({ extended: true }))
-app.use(cors())
+
 app.use(cookieParser(process.env.JWT_SECRET_KEY))
 
 app.post("/register", async (req: Request, res: Response) => {
-  const { email, password, name }: User = req.body
+  const { email, password, name, phone_number }: User = req.body
   const check = await prisma.user.findUnique({ where: { email } })
   if (check) throw new PlatformError("User already exists", 409)
 
@@ -27,15 +36,19 @@ app.post("/register", async (req: Request, res: Response) => {
       email,
       name,
       password: await bcrypt.hash(password, 10),
+      phone_number,
     },
   })
+
+  const token = createToken(user)
+  res.cookie("access-token", token, { maxAge: 5 * 60 * 60 * 1000 })
 
   return res.json(user)
 })
 
 app.post("/login", async (req: Request, res: Response) => {
   const { email, password }: User = req.body
-
+  console.log(email, password)
   const user = await prisma.user.findFirst({ where: { email } })
   if (!user) throw new PlatformError("User does not exist", 404)
 
@@ -52,6 +65,14 @@ app.get("/dashboard", verifyToken, async (req: Request, res: Response) => {
     auth: res.locals.authenticated,
     user: res.locals.user,
   })
+})
+
+app.get("/user", verifyToken, (req: Request, res: Response) => {
+  res.json(res.locals.user)
+})
+
+app.get("/test", (req, res) => {
+  res.json({ msh: "hi" })
 })
 
 app.use(errorHandlerMiddleware)

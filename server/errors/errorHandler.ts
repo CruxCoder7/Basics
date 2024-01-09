@@ -4,9 +4,9 @@ import { StatusCodes } from "http-status-codes"
 
 const errorHandlerMiddleware = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof PlatformError) {
     return res
@@ -15,7 +15,7 @@ const errorHandlerMiddleware = (
   }
   return res
     .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send("Something went wrong try again later")
+    .json({ error: err.name, msg: err.message })
 }
 
 export default errorHandlerMiddleware

@@ -1,12 +1,12 @@
 import { User } from "@prisma/client"
 import { NextFunction, Request, Response } from "express"
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import UnauthenticatedError from "../errors/unauthenticated"
 import BadRequest from "../errors/bad-request"
 
 const createToken = (user: User) => {
   const token = jwt.sign(
-    { name: user.name, email: user.email },
+    { name: user.name, email: user.email, phone_number: user.phone_number },
     process.env.JWT_SECRET_KEY!,
     { expiresIn: "5h" }
   )
@@ -21,7 +21,6 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const user = jwt.verify(token, process.env.JWT_SECRET_KEY!)
   if (!user) throw new BadRequest("Invalid creds")
 
-  console.log(user)
   res.locals.authenticated = true
   res.locals.user = user
   return next()
