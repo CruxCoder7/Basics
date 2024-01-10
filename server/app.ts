@@ -79,7 +79,7 @@ app.get("/user", verifyToken, async (req: Request, res: Response) => {
 })
 
 let runPy = new Promise(function (resolve, reject) {
-  const pyProg = spawn("python", ["test.py", "1.05"])
+  const pyProg = spawn("python", ["test.py", "50"])
 
   pyProg.stdout.on("data", function (data: Object) {
     console.log(data.toString())

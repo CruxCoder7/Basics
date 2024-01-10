@@ -13,6 +13,7 @@ model User {
   password     String
   name         String
   phone_number String @unique @default("")
+  transactions Json   @default("{}")
 
   @@index([email])
 }
