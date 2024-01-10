@@ -17,9 +17,9 @@ export default function Register() {
       email,
       password,
       name,
+      phone,
     })
 
-    console.log(data)
     if (data.status === 200) {
       router.push("/")
     } else {

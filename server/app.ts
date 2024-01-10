@@ -9,6 +9,8 @@ import { User } from "@prisma/client"
 import bcrypt from "bcrypt"
 import { createToken, verifyToken } from "./utils/JWT"
 import errorHandlerMiddleware from "./errors/errorHandler"
+import { spawn } from "child_process"
+
 config()
 
 const app = express()
@@ -67,12 +69,34 @@ app.get("/dashboard", verifyToken, async (req: Request, res: Response) => {
   })
 })
 
-app.get("/user", verifyToken, (req: Request, res: Response) => {
-  res.json(res.locals.user)
+app.get("/user", verifyToken, async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: res.locals.user.email,
+    },
+  })
+  res.json(user)
+})
+
+let runPy = new Promise(function (resolve, reject) {
+  const pyProg = spawn("python", ["test.py", "1.05"])
+
+  pyProg.stdout.on("data", function (data: Object) {
+    console.log(data.toString())
+    resolve(data)
+  })
+
+  pyProg.stderr.on("data", (data: any) => {
+    console.log(data)
+    reject(data)
+  })
 })
 
 app.get("/test", (req, res) => {
-  res.json({ msh: "hi" })
+  runPy.then(function (fromRunpy: any) {
+    console.log(fromRunpy.toString())
+    res.end(fromRunpy)
+  })
 })
 
 app.use(errorHandlerMiddleware)
