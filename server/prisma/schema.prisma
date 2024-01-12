@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id           Int    @id @default(autoincrement())
-  email        String @unique
-  password     String
-  name         String
-  phone_number String @unique @default("")
-  transactions Json   @default("{}")
+  id            Int     @id @default(autoincrement())
+  email         String  @unique
+  password      String
+  name          String
+  phone_number  String  @unique @default("")
+  transactions  Json    @default("{}")
+  isHighSpender Boolean @default(false)
 
   @@index([email])
 }

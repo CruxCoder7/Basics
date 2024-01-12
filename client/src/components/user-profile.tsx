@@ -2,6 +2,10 @@
 import { Button } from "@/components/ui/button"
 
 export function UserProfile({ user }: { user: any }) {
+  const message = user.isHighSpender
+    ? "You are a Generous Spender"
+    : "You are a Frugal Individual"
+
   return (
     <div className="bg-slate-300 min-h-screen flex flex-col items-center justify-center">
       <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md  flex flex-col">
@@ -14,7 +18,7 @@ export function UserProfile({ user }: { user: any }) {
               {user.name}
             </h2>
             <span className="inline-block bg-[#5651e5] text-white px-3 py-1 rounded-full text-sm font-medium mt-2">
-              You are a Frugal Individual
+              {message}
             </span>
           </div>
         </div>

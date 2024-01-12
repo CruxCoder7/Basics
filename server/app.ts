@@ -12,8 +12,12 @@ import prisma from "./db"
 import PlatformError from "./errors/custom-error"
 import errorHandlerMiddleware from "./errors/errorHandler"
 import { createToken, verifyToken } from "./utils/JWT"
-import { sanitize_transaction_data } from "./utils/transaction"
+import {
+  compute_transaction_mean,
+  sanitize_transaction_data,
+} from "./utils/transaction"
 import { spawn } from "child_process"
+import { spawn_process } from "./utils/spawn_process"
 
 config()
 
@@ -116,38 +120,38 @@ app.post(
         .on("end", resolve)
         .on("error", reject)
     })
+
     const transaction_history = sanitize_transaction_data(results)
-    console.log(transaction_history)
+
+    const transaction_mean = compute_transaction_mean(transaction_history)
+    console.log("transaction_mean:", transaction_mean)
+
+    const model_response = await spawn_process(
+      "../server/model_calls/amount_classification.py",
+      { mean: transaction_mean }
+    )
+
+    const isHighSpender = model_response.includes("High") ? true : false
+
     const updated_user = await prisma.user.update({
       where: { email: user.email },
       data: {
         transactions: { data: transaction_history },
+        isHighSpender,
       },
     })
+
     res.json(updated_user)
   }
 )
 
-// let runPy = new Promise(function (resolve, reject) {
-//   const pyProg = spawn("python", ["test.py", "100"])
-
-//   pyProg.stdout.on("data", function (data: Object) {
-//     console.log(data.toString())
-//     resolve(data)
-//   })
-
-//   pyProg.stderr.on("data", (data: any) => {
-//     console.log(data)
-//     reject(data)
-//   })
-// })
-
-// app.get("/test", (req, res) => {
-//   runPy.then(function (fromRunpy: any) {
-//     console.log(fromRunpy.toString())
-//     res.end(fromRunpy)
-//   })
-// })
+app.get("/test", async (req, res) => {
+  const model_response = await spawn_process(
+    "../server/model_calls/amount_classification.py",
+    { mean: 500 }
+  )
+  res.send(model_response)
+})
 
 app.use(errorHandlerMiddleware)
 
