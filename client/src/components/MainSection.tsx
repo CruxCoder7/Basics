@@ -31,12 +31,10 @@ export default function MainSection({ user }: { user: any }) {
     formData.append("file", file as Blob)
 
     try {
-      await fetch("http://localhost:5000/upload", {
+      await fetch("http://localhost:5000/profile", {
         method: "POST",
         body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        credentials: "include",
       })
       router.push("/simulate")
     } catch (error) {

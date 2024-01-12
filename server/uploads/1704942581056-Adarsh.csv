@@ -1,0 +1,9 @@
+,Unnamed: 0,Time,Unix Time,Trans_Id,Name,Acc Num,Merchant Name,Merchant Acc Name,Amount,Lat,Long,Is_Safe,Category
+0,0,2024-01-05 09:15,1704426300,TID123478,Adarsh,1234567890123456,Online Books Store,XYZ Bookshop,50.0,37.7749,-122.4194,Yes,grocery
+1,1,2024-01-05 12:30,1704438000,TID123480,Adarsh,1234567890123456,Campus Cafeteria,ABC Dining Services,10.5,37.7749,-122.4194,Yes,food_dining
+2,2,2024-01-06 15:45,1704536100,TID123485,Adarsh,1234567890123456,Electronics Store,Tech Haven Electronics,120.0,37.7749,-122.4194,Yes,misc
+3,3,2024-01-07 08:20,1704595800,TID123501,Adarsh,1234567890123456,Grocery Store,Fresh Mart,30.75,37.7749,-122.4194,Yes,grocery
+4,4,2024-01-08 14:00,1704702600,TID123490,Adarsh,1234567890123456,Gym Membership,Fit Zone,60.0,37.7749,-122.4194,Yes,health_fitness
+5,5,2024-01-09 20:45,1704813300,TID123467,Adarsh,1234567890123456,Movie Theater,Cineplex,25.0,37.7749,-122.4194,Yes,entertainment
+6,6,2024-01-10 12:30,1704870000,TID123456,Adarsh,1234567890123456,Electronics Store,Gadgets Galore,80.0,37.7749,-122.4194,Yes,misc
+7,7,2024-01-11 18:15,1704977100,TID123474,Adarsh,1234567890123456,Concert Venue,Music Haven,75.0,37.7749,-122.4194,Yes,entertainment

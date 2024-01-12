@@ -1,21 +1,25 @@
-import "express-async-errors"
-import express, { Request, Response, urlencoded } from "express"
-import cors from "cors"
-import cookieParser from "cookie-parser"
-import { config } from "dotenv"
-import prisma from "./db"
-import PlatformError from "./errors/custom-error"
 import { User } from "@prisma/client"
 import bcrypt from "bcrypt"
-import { createToken, verifyToken } from "./utils/JWT"
+import cookieParser from "cookie-parser"
+import cors from "cors"
+import csv from "csv-parser"
+import { config } from "dotenv"
+import express, { Request, Response, urlencoded } from "express"
+import "express-async-errors"
+import fs from "fs"
+import multer from "multer"
+import prisma from "./db"
+import PlatformError from "./errors/custom-error"
 import errorHandlerMiddleware from "./errors/errorHandler"
+import { createToken, verifyToken } from "./utils/JWT"
+import { sanitize_transaction_data } from "./utils/transaction"
 import { spawn } from "child_process"
 
 config()
 
 const app = express()
 app.use(express.json())
-
+app.use(urlencoded({ extended: true }))
 app.use(
   cors({
     origin: ["http://localhost:3000"],
@@ -24,9 +28,18 @@ app.use(
   })
 )
 
-app.use(urlencoded({ extended: true }))
-
 app.use(cookieParser(process.env.JWT_SECRET_KEY))
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./uploads") // specify the destination folder for file uploads
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname) // generate a unique filename
+  },
+})
+
+const upload = multer({ storage }).single("file")
 
 app.post("/register", async (req: Request, res: Response) => {
   const { email, password, name, phone_number }: User = req.body
@@ -70,34 +83,71 @@ app.get("/dashboard", verifyToken, async (req: Request, res: Response) => {
 })
 
 app.get("/user", verifyToken, async (req: Request, res: Response) => {
+  const { email } = res.locals.user
   const user = await prisma.user.findUnique({
     where: {
-      email: res.locals.user.email,
+      email,
     },
   })
+  // @ts-ignore
+  delete user.password
+
   res.json(user)
 })
 
-let runPy = new Promise(function (resolve, reject) {
-  const pyProg = spawn("python", ["test.py", "50"])
+app.post(
+  "/profile",
+  verifyToken,
+  upload,
+  async (req: Request, res: Response) => {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.")
+    }
 
-  pyProg.stdout.on("data", function (data: Object) {
-    console.log(data.toString())
-    resolve(data)
-  })
+    const user = res.locals.user
 
-  pyProg.stderr.on("data", (data: any) => {
-    console.log(data)
-    reject(data)
-  })
-})
+    const filePath = req.file.path
+    const results: any[] = []
 
-app.get("/test", (req, res) => {
-  runPy.then(function (fromRunpy: any) {
-    console.log(fromRunpy.toString())
-    res.end(fromRunpy)
-  })
-})
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on("data", (data) => results.push(data))
+        .on("end", resolve)
+        .on("error", reject)
+    })
+    const transaction_history = sanitize_transaction_data(results)
+    console.log(transaction_history)
+    const updated_user = await prisma.user.update({
+      where: { email: user.email },
+      data: {
+        transactions: { data: transaction_history },
+      },
+    })
+    res.json(updated_user)
+  }
+)
+
+// let runPy = new Promise(function (resolve, reject) {
+//   const pyProg = spawn("python", ["test.py", "100"])
+
+//   pyProg.stdout.on("data", function (data: Object) {
+//     console.log(data.toString())
+//     resolve(data)
+//   })
+
+//   pyProg.stderr.on("data", (data: any) => {
+//     console.log(data)
+//     reject(data)
+//   })
+// })
+
+// app.get("/test", (req, res) => {
+//   runPy.then(function (fromRunpy: any) {
+//     console.log(fromRunpy.toString())
+//     res.end(fromRunpy)
+//   })
+// })
 
 app.use(errorHandlerMiddleware)
 
