@@ -12,7 +12,7 @@ export default function Login() {
 
   const LoginFn = (_data: Object) => {
     return axios.post(
-      "http://localhost:5000/login",
+      "http://localhost:5000/auth/login",
       {
         email,
         password,

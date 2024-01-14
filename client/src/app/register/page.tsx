@@ -14,7 +14,7 @@ export default function Register() {
 
   const registerFn = async (_data: Object) => {
     return axios.post(
-      "http://localhost:5000/register",
+      "http://localhost:5000/auth/register",
       {
         email,
         password,

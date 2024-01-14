@@ -1,10 +1,9 @@
 "use client"
-
-import Navbar from "@/components/Navbar"
-import MainSection from "@/components/MainSection"
-import { useQuery } from "@tanstack/react-query"
-import { Loading } from "@/components/Loading"
 import Footer from "@/components/Footer"
+import { Loading } from "@/components/Loading"
+import MainSection from "@/components/MainSection"
+import Navbar from "@/components/Navbar"
+import { useQuery } from "@tanstack/react-query"
 
 async function getUser() {
   const userFetch = await fetch("http://localhost:5000/user", {

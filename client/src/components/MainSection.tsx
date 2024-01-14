@@ -1,10 +1,10 @@
 "use client"
+import UploadButton from "@/components/UploadButton"
+import { Box, Modal, Typography } from "@mui/material"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useDropzone } from "react-dropzone"
-import { Box, Modal, Typography } from "@mui/material"
 import { IoClose } from "react-icons/io5"
-import UploadButton from "@/components/UploadButton"
-import { useRouter } from "next/navigation"
 
 export default function MainSection({ user }: { user: any }) {
   const [open, setOpen] = useState(false)
@@ -31,7 +31,7 @@ export default function MainSection({ user }: { user: any }) {
     formData.append("file", file as Blob)
 
     try {
-      await fetch("http://localhost:5000/profile", {
+      await fetch("http://localhost:5000/user/profile", {
         method: "POST",
         body: formData,
         credentials: "include",
