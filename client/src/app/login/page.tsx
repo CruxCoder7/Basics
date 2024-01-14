@@ -10,7 +10,7 @@ export default function Login() {
 
   const router = useRouter()
 
-  const LoginFn = () => {
+  const LoginFn = (_data: Object) => {
     return axios.post(
       "http://localhost:5000/login",
       {
@@ -21,7 +21,7 @@ export default function Login() {
     )
   }
 
-  const login = useMutation({
+  const loginMutation = useMutation({
     mutationFn: LoginFn,
     onSuccess() {
       router.push("/")
@@ -30,8 +30,7 @@ export default function Login() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    // @ts-ignore
-    login.mutate({ email, password })
+    loginMutation.mutate({ email, password })
   }
 
   return (
@@ -65,7 +64,7 @@ export default function Login() {
             className="w-full p-4 mt-4 dark:shadow-none cursor-pointer shadow-xl shadow-gray-400 rounded-xl uppercase bg-gradient-to-r from-[#5651e5] to-[#709dff] text-white disabled:opacity-50"
             type="submit"
             value="Login"
-            disabled={login.isPending}
+            disabled={loginMutation.isPending}
           />
         </form>
       </div>

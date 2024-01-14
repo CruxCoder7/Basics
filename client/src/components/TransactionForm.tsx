@@ -10,9 +10,15 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-export function TransactionForm({ user }: { user: any }) {
+export function TransactionForm({
+  user,
+  setOpen,
+}: {
+  user: any
+  setOpen: Function
+}) {
   return (
-    <Card className="w-full max-w-lg bg-white shadow-lg rounded-lg p-6">
+    <Card className="w-full  max-w-lg bg-white shadow-lg rounded-lg p-4 ">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-gray-800">
           Transaction Form
@@ -78,6 +84,14 @@ export function TransactionForm({ user }: { user: any }) {
       <CardFooter>
         <Button className="w-full bg-black text-white hover:opacity-80 rounded-md">
           Submit
+        </Button>
+      </CardFooter>
+      <CardFooter>
+        <Button
+          className="w-full bg-red-600 text-white hover:opacity-80 rounded-md"
+          onClick={() => setOpen(false)}
+        >
+          Cancel
         </Button>
       </CardFooter>
     </Card>

@@ -48,7 +48,7 @@ const upload = multer({ storage }).single("file")
 
 app.post("/register", async (req: Request, res: Response) => {
   const { email, password, name, phone_number }: User = req.body
-  const check = await prisma.user.findUnique({ where: { email } })
+  const check = await prisma.user.findUnique({ where: { email, phone_number } })
   if (check) throw new PlatformError("User already exists", 409)
 
   const user = await prisma.user.create({

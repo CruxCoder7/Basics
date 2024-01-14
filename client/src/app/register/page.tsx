@@ -1,4 +1,5 @@
 "use client"
+import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -7,30 +8,42 @@ export default function Register() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
+  const [phone_number, setPhoneNumber] = useState("")
 
   const router = useRouter()
 
-  const register = async (e: any) => {
-    e.preventDefault()
-    const data = await axios.post("http://localhost:5000/register", {
-      email,
-      password,
-      name,
-      phone,
-    })
+  const registerFn = async (_data: Object) => {
+    return axios.post(
+      "http://localhost:5000/register",
+      {
+        email,
+        password,
+        name,
+        phone_number,
+      },
+      { withCredentials: true }
+    )
+  }
 
-    if (data.status === 200) {
+  const registerMutation = useMutation({
+    mutationFn: registerFn,
+    onSuccess() {
       router.push("/")
-    } else {
+    },
+    onError() {
       router.push("/register")
-    }
+    },
+  })
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault()
+    registerMutation.mutate({ email, password, name, phone_number })
   }
 
   return (
     <div className=" w-full flex items-center justify-center min-h-screen">
       <div className="p-4 w-[70%] border shadow-xl shadow-gray-400 rounded-xl">
-        <form onSubmit={register}>
+        <form onSubmit={handleSubmit}>
           <div className="grid md:grid-cols-2 gap-4 w-full py-2"></div>
           <div className="flex flex-col py-2">
             <label className="uppercase text-sm py-2 text-black">Email</label>
@@ -73,13 +86,14 @@ export default function Register() {
               className="border-2 rounded-lg p-3 flex border-gray-300 focus:outline-none"
               name="tel"
               required
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
           <input
-            className="w-full p-4 mt-4 dark:shadow-none cursor-pointer shadow-xl shadow-gray-400 rounded-xl uppercase bg-gradient-to-r from-[#5651e5] to-[#709dff] text-white"
+            className="w-full p-4 mt-4 dark:shadow-none cursor-pointer shadow-xl shadow-gray-400 rounded-xl uppercase bg-gradient-to-r from-[#5651e5] to-[#709dff] text-white disabled:opacity-50"
             type="submit"
-            value="Login"
+            value="Register"
+            disabled={registerMutation.isPending}
           />
         </form>
       </div>

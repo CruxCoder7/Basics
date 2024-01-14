@@ -11,8 +11,14 @@ export function UserProfile({ user }: { user: any }) {
     : "You are a Frugal Individual"
 
   return (
-    <div className="overflow-y-hidden min-h-screen flex flex-col gap-10 items-center py-10">
-      <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md  flex flex-col">
+    <div
+      className={`overflow-y-hidden min-h-screen flex justify-center flex-col gap-10 items-center py-10`}
+    >
+      <div
+        className={`w-full max-w-2xl p-8 bg-white rounded-lg shadow-md  flex flex-col ${
+          open && "hidden"
+        }`}
+      >
         <div>
           <h1 className="text-4xl font-bold text-center text-gray-900  mb-4">
             Your User Profile
@@ -34,8 +40,8 @@ export function UserProfile({ user }: { user: any }) {
         </Button>
       </div>
       {open && (
-        <div className="w-full flex items-center justify-center">
-          <TransactionForm user={user} />
+        <div className="w-full flex items-center justify-center my-[-1rem]">
+          <TransactionForm user={user} setOpen={setOpen} />
         </div>
       )}
     </div>
