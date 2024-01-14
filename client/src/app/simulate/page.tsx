@@ -1,6 +1,6 @@
 "use client"
 import { Loading } from "@/components/Loading"
-import { UserProfile } from "@/components/user-profile"
+import { UserProfile } from "@/components/UserProfile"
 import { useQuery } from "@tanstack/react-query"
 
 async function getUser() {

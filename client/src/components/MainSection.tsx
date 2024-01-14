@@ -52,7 +52,7 @@ export default function MainSection({ user }: { user: any }) {
           }}
           className="border text-white p-5 bg-[#5651e5] rounded-lg ml-14 mt-10 cursor-pointer hover:opacity-85"
         >
-          Simulate Transaction
+          {user.isHighSpender ? "Update" : "Create"} User Profile
         </button>
         <Modal
           open={open}

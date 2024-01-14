@@ -1,4 +1,5 @@
 import { User } from "@prisma/client"
+import crypto from "crypto"
 import bcrypt from "bcrypt"
 import cookieParser from "cookie-parser"
 import cors from "cors"
@@ -12,13 +13,13 @@ import prisma from "./db"
 import PlatformError from "./errors/custom-error"
 import errorHandlerMiddleware from "./errors/errorHandler"
 import { createToken, verifyToken } from "./utils/JWT"
+import { spawn_process } from "./utils/spawn_process"
 import {
   compute_transaction_mean,
   sanitize_transaction_data,
 } from "./utils/transaction"
-import { spawn } from "child_process"
-import { spawn_process } from "./utils/spawn_process"
-
+import { send_mail } from "./utils/send_mail"
+import UnauthenticatedError from "./errors/unauthenticated"
 config()
 
 const app = express()
@@ -35,11 +36,11 @@ app.use(
 app.use(cookieParser(process.env.JWT_SECRET_KEY))
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./uploads") // specify the destination folder for file uploads
+  destination: (_req, _file, cb) => {
+    cb(null, "./uploads")
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname) // generate a unique filename
+  filename: (_req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname)
   },
 })
 
@@ -87,16 +88,23 @@ app.get("/dashboard", verifyToken, async (req: Request, res: Response) => {
 })
 
 app.get("/user", verifyToken, async (req: Request, res: Response) => {
+  function exclude<User, Key extends keyof User>(user: User, keys: Key[]) {
+    return Object.fromEntries(
+      Object.entries(user as any).filter(([key]) => !keys.includes(key as any))
+    )
+  }
+
   const { email } = res.locals.user
+
   const user = await prisma.user.findUnique({
     where: {
       email,
     },
   })
-  // @ts-ignore
-  delete user.password
 
-  res.json(user)
+  const userWithoutPassword = exclude(user, ["password" as never])
+
+  res.json(userWithoutPassword)
 })
 
 app.post(
@@ -146,11 +154,69 @@ app.post(
 )
 
 app.get("/test", async (req, res) => {
-  const model_response = await spawn_process(
-    "../server/model_calls/amount_classification.py",
-    { mean: 500 }
+  const data = await prisma.flagged_Transactions.findMany({
+    include: {
+      user: true,
+    },
+  })
+
+  res.json(data)
+})
+
+type CategoryTypes =
+  | "entertainment"
+  | "food_dining"
+  | "gas_transport"
+  | "grocery"
+  | "health_fitness"
+  | "home"
+  | "kids_pets"
+  | "misc"
+  | "personal_care"
+  | "shopping"
+  | "travel"
+
+type Transaction = {
+  txid: string
+  amount: string
+  acc_no: string
+  category: CategoryTypes
+  name: string
+}
+
+app.post("/transaction", verifyToken, async (req: Request, res: Response) => {
+  const { txid, amount, acc_no, category, name }: Transaction = req.body
+
+  const user = await prisma.user.findUnique({
+    where: { email: res.locals.user.email },
+  })
+
+  if (!user) throw new UnauthenticatedError("User not logged in!")
+
+  // detection based on just amount
+  const model_path = user.isHighSpender
+    ? "../models/amount_cluster_segment1isolationForest.pkl"
+    : "../models/amount_cluster_segment0isolationForest.pkl"
+
+  const amount_detection: string = await spawn_process(
+    "../server/model_calls/amount_based_detection.py",
+    { amount, model_path }
   )
-  res.send(model_response)
+
+  if (!amount_detection.includes("Flagged"))
+    return res.json({ msg: "email not sent, the transaction is not tagged!" })
+
+  const email_key = crypto.randomInt(10000, 99999).toString()
+  await prisma.flagged_Transactions.create({
+    data: {
+      email_key,
+      transaction: req.body,
+      userId: user.id,
+    },
+  })
+
+  const email_resp = await send_mail(user.email, email_key)
+  if (email_resp) return res.json({ msg: "email sent" })
 })
 
 app.use(errorHandlerMiddleware)

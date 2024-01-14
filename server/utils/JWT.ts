@@ -6,7 +6,12 @@ import BadRequest from "../errors/bad-request"
 
 const createToken = (user: User) => {
   const token = jwt.sign(
-    { name: user.name, email: user.email, phone_number: user.phone_number },
+    {
+      name: user.name,
+      email: user.email,
+      phone_number: user.phone_number,
+      isHighSpender: user.isHighSpender,
+    },
     process.env.JWT_SECRET_KEY!,
     { expiresIn: "5h" }
   )

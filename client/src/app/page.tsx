@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar"
 import MainSection from "@/components/MainSection"
 import { useQuery } from "@tanstack/react-query"
 import { Loading } from "@/components/Loading"
+import Footer from "@/components/Footer"
 
 async function getUser() {
   const userFetch = await fetch("http://localhost:5000/user", {
@@ -31,6 +32,7 @@ export default function Home() {
     <main>
       <Navbar user={user} />
       <MainSection user={user} />
+      <Footer />
     </main>
   )
 }

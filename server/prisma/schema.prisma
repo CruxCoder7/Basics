@@ -8,13 +8,22 @@ datasource db {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  email         String  @unique
-  password      String
-  name          String
-  phone_number  String  @unique @default("")
-  transactions  Json    @default("{}")
-  isHighSpender Boolean @default(false)
+  id                   Int                    @id @default(autoincrement())
+  email                String                 @unique
+  password             String
+  name                 String
+  phone_number         String                 @unique
+  transactions         Json                   @default("{}")
+  isHighSpender        Boolean?
+  Flagged_Transactions Flagged_Transactions[]
 
   @@index([email])
+}
+
+model Flagged_Transactions {
+  id          Int    @id @default(autoincrement())
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int
+  transaction Json
+  email_key   String
 }
