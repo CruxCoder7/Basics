@@ -21,9 +21,11 @@ model User {
 }
 
 model Flagged_Transactions {
-  id          Int    @id @default(autoincrement())
-  user        User   @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
   userId      Int
   transaction Json
   email_key   String
+  processed   Boolean  @default(false)
+  cancelled   Boolean?
 }

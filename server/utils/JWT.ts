@@ -20,7 +20,7 @@ const createToken = (user: User) => {
 }
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies["access-token"]
+  const token = req.cookies["access-token"] || req.headers.cookie
   if (!token) throw new UnauthenticatedError("User not authenticated")
 
   const user = jwt.verify(token, process.env.JWT_SECRET_KEY!)

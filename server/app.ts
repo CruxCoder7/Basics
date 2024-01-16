@@ -14,15 +14,15 @@ app.use(urlencoded({ extended: true }))
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT"],
     credentials: true,
   })
 )
 
 app.use(cookieParser(process.env.JWT_SECRET_KEY))
 
-app.use('/user', UserRouter)
-app.use('/auth', AuthRouter)
+app.use("/user", UserRouter)
+app.use("/auth", AuthRouter)
 
 app.use(errorHandlerMiddleware)
 

@@ -12,7 +12,7 @@ export default function Register() {
 
   const router = useRouter()
 
-  const registerFn = async (_data: Object) => {
+  const registerFn = async () => {
     return axios.post(
       "http://localhost:5000/auth/register",
       {
@@ -37,7 +37,7 @@ export default function Register() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    registerMutation.mutate({ email, password, name, phone_number })
+    registerMutation.mutate()
   }
 
   return (

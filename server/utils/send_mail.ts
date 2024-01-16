@@ -2,7 +2,9 @@ import nodemailer from "nodemailer"
 
 export const send_mail = async (
   to_address: string,
-  email_key: string
+  email_key: string,
+  transaction_id: number
+
 ): Promise<boolean> => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -18,7 +20,7 @@ export const send_mail = async (
     subject: "Your transaction has been flagged!!!",
     html: `Your code is <b>${email_key}</b>
            <br/>
-           Go to <a href="http://localhost:3000/dashboard">this link</a> and type the above code to cancel your transaction.
+           Go to <a href="http://localhost:3000/transaction/${transaction_id}">this link</a> and type the above code to cancel your transaction.
            <br/>
            If you want to proceed, click the <b>Proceed</b> button on the page.`,
   }
