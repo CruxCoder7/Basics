@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 export function TransactionForm({
@@ -31,6 +31,8 @@ export function TransactionForm({
 
   const [message, setMessage] = useState("")
 
+  const router = useRouter()
+
   const handleChange = (e: any) => {
     const { name, value } = e.target
     setFormData((prevData) => ({
@@ -49,7 +51,7 @@ export function TransactionForm({
     mutationFn: transactionFn,
     onSuccess(data) {
       console.log(data.data.msg)
-      if (data.data.msg === "unflagged") return redirect("/dashboard")
+      if (data.data.msg === "unflagged") router.push("/dashboard")
       if (data.data.msg === "email sent") {
         setMessage("URGENT! Check your email:")
       }
@@ -141,10 +143,13 @@ export function TransactionForm({
       </CardContent>
       <CardFooter>
         <Button
-          className="w-full bg-black text-white hover:opacity-80 rounded-md disabled:opacity-50"
+          className="w-full bg-black text-white hover:opacity-80 rounded-md disabled:opacity-60"
           onClick={handleSubmit}
           disabled={
-            transactionMutation.isPending || transactionMutation.isSuccess
+            transactionMutation.isPending ||
+            transactionMutation.isSuccess ||
+            formData.amount.length < 1 ||
+            formData.category.length < 1
           }
         >
           Submit

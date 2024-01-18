@@ -1,7 +1,7 @@
 "use client"
 import { ResponsivePie } from "@nivo/pie"
 
-export const MyResponsivePie = ({ data }: { data: any }) => (
+export const PieChart = ({ data }: { data: any }) => (
   <ResponsivePie
     data={data}
     margin={{ top: 40, right: 80, bottom: 80, left: 80 }}

@@ -1,7 +1,7 @@
 "use client"
 import { ResponsiveBar } from "@nivo/bar"
 
-export const MyResponsiveBar = ({
+export const BarChart = ({
   data,
   amount_keys,
 }: {
@@ -37,7 +37,7 @@ export const MyResponsiveBar = ({
       tickRotation: 0,
       legend: "Amount ",
       legendPosition: "middle",
-      legendOffset: -55,
+      legendOffset: -50,
       truncateTickAt: 0,
     }}
     labelSkipWidth={12}
@@ -79,7 +79,7 @@ export const MyResponsiveBar = ({
       axis: {
         legend: {
           text: {
-            fontSize: 20,
+            fontSize: 18,
           },
         },
       },
