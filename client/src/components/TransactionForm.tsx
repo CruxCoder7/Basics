@@ -42,7 +42,7 @@ export function TransactionForm({
   }
 
   const transactionFn = async () => {
-    return axios.post("http://localhost:5000/user/transaction", formData, {
+    return axios.post("http://localhost:5000/transaction", formData, {
       withCredentials: true,
     })
   }

@@ -23,7 +23,7 @@ export default function FlaggedTransaction({
     cancelled: boolean
   }) => {
     const request = await axios.put(
-      "http://localhost:5000/user/transaction",
+      "http://localhost:5000/transaction",
       {
         id,
         cancelled,

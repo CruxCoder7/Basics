@@ -14,7 +14,7 @@ export default async function Transaction({
   if (!token) redirect("/login")
 
   const transaction = await axios.get(
-    `http://localhost:5000/user/transaction/${params.id}`,
+    `http://localhost:5000/transaction/${params.id}`,
     {
       headers: {
         cookie: token.value,

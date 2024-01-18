@@ -5,7 +5,8 @@ import express, { urlencoded } from "express"
 import "express-async-errors"
 import errorHandlerMiddleware from "./errors/errorHandler"
 import AuthRouter from "./routes/Auth"
-import UserRouter from "./routes/user"
+import UserRouter from "./routes/User"
+import TransactionRouter from "./routes/Transaction"
 config()
 
 const app = express()
@@ -23,6 +24,7 @@ app.use(cookieParser(process.env.JWT_SECRET_KEY))
 
 app.use("/user", UserRouter)
 app.use("/auth", AuthRouter)
+app.use("/transaction", TransactionRouter)
 
 app.use(errorHandlerMiddleware)
 

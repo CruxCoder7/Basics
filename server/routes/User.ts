@@ -20,8 +20,4 @@ UserRouter.get("/", verifyToken, UserController.getUser)
 UserRouter.get("/dashboard", verifyToken, UserController.dashboard)
 UserRouter.post("/profile", verifyToken, upload, UserController.profile)
 
-UserRouter.get("/transaction/:id", verifyToken, UserController.checkTransaction)
-UserRouter.post("/transaction", verifyToken, UserController.transaction)
-UserRouter.put("/transaction", verifyToken, UserController.updateTransaction)
-
 export default UserRouter
