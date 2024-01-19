@@ -11,7 +11,7 @@ import {
   compute_transaction_mean,
   sanitize_transaction_data,
 } from "../utils/transaction"
-import { User } from "@prisma/client"
+import { Prisma, User } from "@prisma/client"
 import exclude from "../utils/exclude_property"
 
 export default class UserController {
@@ -91,7 +91,7 @@ export default class UserController {
 
   static async transaction(req: Request, res: Response) {
     const { txid, amount, acc_no, category, name }: Transaction = req.body
-    console.log(req.body)
+
     const user = await prisma.user.findUnique({
       where: { email: res.locals.user.email },
     })
@@ -108,8 +108,24 @@ export default class UserController {
       { amount, model_path }
     )
 
-    if (!amount_detection.includes("Flagged"))
+    const past_transactions_json = user.transactions as Prisma.JsonObject
+    const past_transaction_data = past_transactions_json[
+      "data"
+    ]! as Prisma.JsonArray
+    console.log("PAST", past_transaction_data.length)
+    past_transaction_data.push({ txid, amount, acc_no, category, name })
+
+    if (!amount_detection.includes("Flagged")) {
+      await prisma.user.update({
+        where: { email: res.locals.user.email },
+        data: {
+          transactions: {
+            data: past_transaction_data,
+          },
+        },
+      })
       return res.json({ msg: "unflagged" })
+    }
 
     const email_key = crypto.randomInt(10000, 99999).toString()
     const { id: transaction_id } = await prisma.flagged_Transactions.create({
