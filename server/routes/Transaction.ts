@@ -1,13 +1,17 @@
 import express from "express"
 import { verifyToken } from "../utils/jwt"
-import UserController from "../controllers/User"
+import TransactionController from "../controllers/Transaction"
 
 const TransactionRouter = express.Router()
 
-TransactionRouter.post("/", verifyToken, UserController.transaction)
+TransactionRouter.post("/", verifyToken, TransactionController.transaction)
 
-TransactionRouter.put("/", verifyToken, UserController.updateTransaction)
+TransactionRouter.put("/", verifyToken, TransactionController.updateTransaction)
 
-TransactionRouter.get("/:id", verifyToken, UserController.checkTransaction)
+TransactionRouter.get(
+  "/:id",
+  verifyToken,
+  TransactionController.checkTransaction
+)
 
 export default TransactionRouter

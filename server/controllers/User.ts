@@ -1,18 +1,16 @@
-import crypto from "crypto"
+import { Prisma, User } from "@prisma/client"
 import csvParser from "csv-parser"
 import { Request, Response } from "express"
 import fs from "fs"
 import prisma from "../db"
 import UnauthenticatedError from "../errors/unauthenticated"
 import { Transaction } from "../types/Transaction"
-import { send_mail } from "../utils/send_mail"
+import exclude from "../utils/exclude_property"
 import { spawn_process } from "../utils/spawn_process"
 import {
   compute_transaction_mean,
   sanitize_transaction_data,
 } from "../utils/transaction"
-import { Prisma, User } from "@prisma/client"
-import exclude from "../utils/exclude_property"
 
 export default class UserController {
   static async getUser(req: Request, res: Response) {
@@ -89,75 +87,31 @@ export default class UserController {
     res.json(updated_user)
   }
 
-  static async transaction(req: Request, res: Response) {
-    const { txid, amount, acc_no, category, name }: Transaction = req.body
+  static async updateUser(req: Request, res: Response) {
+    const { transaction: { acc_no, amount, category, name, txid } }: { transaction: Transaction } =
+      req.body.transaction
 
-    const user = await prisma.user.findUnique({
-      where: { email: res.locals.user.email },
-    })
+    const { email } = res.locals.user
 
-    if (!user) throw new UnauthenticatedError("User not logged in!")
-
-    // detection based on just amount
-    const model_path = user.isHighSpender
-      ? "../models/amount_cluster_segment1isolationForest.pkl"
-      : "../models/amount_cluster_segment0isolationForest.pkl"
-
-    const amount_detection: string = await spawn_process(
-      "../server/model_calls/amount_based_detection.py",
-      { amount, model_path }
-    )
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) throw new UnauthenticatedError("User does not exist")
 
     const past_transactions_json = user.transactions as Prisma.JsonObject
     const past_transaction_data = past_transactions_json[
       "data"
     ]! as Prisma.JsonArray
-    console.log("PAST", past_transaction_data.length)
+
     past_transaction_data.push({ txid, amount, acc_no, category, name })
 
-    if (!amount_detection.includes("Flagged")) {
-      await prisma.user.update({
-        where: { email: res.locals.user.email },
-        data: {
-          transactions: {
-            data: past_transaction_data,
-          },
+    const updated_user = await prisma.user.update({
+      where: { email },
+      data: {
+        transactions: {
+          data: past_transaction_data,
         },
-      })
-      return res.json({ msg: "unflagged" })
-    }
-
-    const email_key = crypto.randomInt(10000, 99999).toString()
-    const { id: transaction_id } = await prisma.flagged_Transactions.create({
-      data: {
-        email_key,
-        transaction: req.body,
-        userId: user.id,
       },
     })
 
-    const email_resp = await send_mail(user.email, email_key, transaction_id)
-    if (email_resp) return res.json({ msg: "email sent" })
-  }
-
-  static async checkTransaction(req: Request, res: Response) {
-    const id = parseInt(req.params.id)
-    const txn = await prisma.flagged_Transactions.findUnique({ where: { id } })
-    if (!txn) return res.json(false)
-    return res.json(txn)
-  }
-
-  static async updateTransaction(req: Request, res: Response) {
-    const { cancelled, id }: { cancelled: boolean; id: number } = req.body
-
-    const transaction = await prisma.flagged_Transactions.update({
-      where: { id },
-      data: {
-        cancelled,
-        processed: true,
-      },
-    })
-
-    res.json(transaction)
+    res.json(updated_user)
   }
 }

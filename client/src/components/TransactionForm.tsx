@@ -61,7 +61,7 @@ export function TransactionForm({
     },
   })
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = () => {
     transactionMutation.mutate()
   }
 

@@ -42,7 +42,7 @@ export default function Register() {
 
   return (
     <div className=" w-full flex items-center justify-center min-h-screen">
-      <div className="p-4 w-[70%] border shadow-xl shadow-gray-400 rounded-xl">
+      <div className="p-4 w-[50%] border shadow-xl shadow-gray-400 rounded-xl">
         <form onSubmit={handleSubmit}>
           <div className="grid md:grid-cols-2 gap-4 w-full py-2"></div>
           <div className="flex flex-col py-2">

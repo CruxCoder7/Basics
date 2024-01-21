@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage }).single("file")
 
 UserRouter.get("/", verifyToken, UserController.getUser)
+UserRouter.put("/", verifyToken, UserController.updateUser)
 UserRouter.get("/dashboard", verifyToken, UserController.dashboard)
 UserRouter.post("/profile", verifyToken, upload, UserController.profile)
 

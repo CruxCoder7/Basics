@@ -18,7 +18,19 @@ export default function Navbar({ user }: { user: any }) {
         <h2 className={`${AntonFont.className}`}>CYBERPUNKS</h2>
         <div className="flex gap-5 items-center justify-center">
           <h2 className="text-[#5651e5] cursor-pointer font-medium">
-            <Link href={"/dashboard"}>Dashboard</Link>
+            {!user.name ? (
+              <Link href={"/login"}>Dashboard</Link>
+            ) : (
+              <>
+                {user.isHighSpender === null ? (
+                  <Link href="#" onClick={() => setOpen(!open)}>
+                    Dashboard
+                  </Link>
+                ) : (
+                  <Link href={"/dashboard"}>Dashboard</Link>
+                )}
+              </>
+            )}
           </h2>
           {!user.name && (
             <>

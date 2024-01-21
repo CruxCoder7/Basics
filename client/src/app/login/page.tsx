@@ -1,6 +1,6 @@
 "use client"
 import { useMutation } from "@tanstack/react-query"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -23,8 +23,15 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: LoginFn,
+    mutationKey: ["loginMutation"],
     onSuccess() {
       router.push("/")
+    },
+    onError(error: AxiosError<{ msg: string }>) {
+      if (error.response) {
+        alert(error.response.data.msg)
+      }
+      console.log(error)
     },
   })
 
@@ -35,7 +42,7 @@ export default function Login() {
 
   return (
     <div className=" w-full flex items-center justify-center min-h-screen">
-      <div className="p-4 w-[70%] border shadow-xl shadow-gray-400 rounded-xl">
+      <div className="p-4 w-[50%] border shadow-xl shadow-gray-400 rounded-xl">
         <form onSubmit={handleSubmit}>
           <div className="grid md:grid-cols-2 gap-4 w-full py-2"></div>
           <div className="flex flex-col py-2">

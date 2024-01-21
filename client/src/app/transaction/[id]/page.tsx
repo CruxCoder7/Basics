@@ -8,8 +8,6 @@ export default async function Transaction({
 }: {
   params: { id: string }
 }) {
-  if (params.id === "success") return <div>Transaction with id {params.id}</div>
-
   const token = cookies().get("access-token")
   if (!token) redirect("/login")
 
@@ -26,5 +24,11 @@ export default async function Transaction({
     return <div>This page does not exist</div>
 
   const { email_key, id } = transaction.data
-  return <FlaggedTransaction email_key={email_key} id={id} />
+  return (
+    <FlaggedTransaction
+      email_key={email_key}
+      id={id}
+      transaction={transaction.data.transaction}
+    />
+  )
 }

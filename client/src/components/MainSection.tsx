@@ -1,6 +1,7 @@
 "use client"
 import UploadButton from "@/components/UploadButton"
 import { Box, Modal, Typography } from "@mui/material"
+import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useDropzone } from "react-dropzone"
@@ -21,12 +22,7 @@ export default function MainSection({ user }: { user: any }) {
     },
   })
 
-  const files = acceptedFiles.map((file: File) => (
-    <li key={file.name}>{file.name}</li>
-  ))
-
-  const handleUpload = async (event: any) => {
-    event.preventDefault()
+  const uploadCsvFn = async () => {
     const formData = new FormData()
     formData.append("file", file as Blob)
 
@@ -41,6 +37,20 @@ export default function MainSection({ user }: { user: any }) {
       console.error("Error:", error)
     }
   }
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadCsvFn,
+    mutationKey: ["uploadMutation"],
+  })
+
+  const handleUpload = (event: any) => {
+    event.preventDefault()
+    uploadMutation.mutate()
+  }
+
+  const files = acceptedFiles.map((file: File) => (
+    <li key={file.name}>{file.name}</li>
+  ))
 
   return (
     <div className="w-full flex justify-between items-center px-32">
@@ -103,7 +113,10 @@ export default function MainSection({ user }: { user: any }) {
                       />
                     </ul>
                   </aside>
-                  <UploadButton handleUpload={handleUpload} />
+                  <UploadButton
+                    handleUpload={handleUpload}
+                    disabled={uploadMutation.isPending}
+                  />
                 </>
               )}
             </div>

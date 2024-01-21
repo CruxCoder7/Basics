@@ -7,9 +7,11 @@ import axios from "axios"
 export default function FlaggedTransaction({
   email_key,
   id,
+  transaction,
 }: {
   email_key: string
   id: number
+  transaction: Object
 }) {
   const [code, setCode] = useState("")
   const [error, setError] = useState("")
@@ -34,8 +36,21 @@ export default function FlaggedTransaction({
     return request.data
   }
 
+  const updateUser = async (transaction: Object) => {
+    const request = await axios.put(
+      "http://localhost:5000/user",
+      {
+        transaction,
+      },
+      { withCredentials: true }
+    )
+
+    return request.data
+  }
+
   const handleContinue = async () => {
     await updateTransaction({ id, cancelled: false })
+    await updateUser(transaction)
     router.push("/dashboard")
   }
 
