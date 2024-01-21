@@ -1,3 +1,4 @@
+import { getTransactionById } from "@/api_calls/get"
 import FlaggedTransaction from "@/components/FlaggedTransaction"
 import axios from "axios"
 import { cookies } from "next/headers"
@@ -11,19 +12,13 @@ export default async function Transaction({
   const token = cookies().get("access-token")
   if (!token) redirect("/login")
 
-  const transaction = await axios.get(
-    `http://localhost:5000/transaction/${params.id}`,
-    {
-      headers: {
-        cookie: token.value,
-      },
-    }
-  )
+  const transaction = await getTransactionById(params.id, token)
 
   if (!transaction.data || transaction.data.processed)
     return <div>This page does not exist</div>
 
   const { email_key, id } = transaction.data
+
   return (
     <FlaggedTransaction
       email_key={email_key}

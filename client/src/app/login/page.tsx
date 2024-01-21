@@ -10,7 +10,7 @@ export default function Login() {
 
   const router = useRouter()
 
-  const LoginFn = (_data: Object) => {
+  const LoginFn = () => {
     return axios.post(
       "http://localhost:5000/auth/login",
       {
@@ -37,7 +37,7 @@ export default function Login() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    loginMutation.mutate({ email, password })
+    loginMutation.mutate()
   }
 
   return (

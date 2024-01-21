@@ -2,7 +2,8 @@
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { useState } from "react"
-import axios from "axios"
+import { updateTransaction, updateUser } from "@/api_calls/mutations"
+import { useMutation } from "@tanstack/react-query"
 
 export default function FlaggedTransaction({
   email_key,
@@ -17,42 +18,28 @@ export default function FlaggedTransaction({
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const updateTransaction = async ({
-    id,
-    cancelled,
-  }: {
-    id: number
-    cancelled: boolean
-  }) => {
-    const request = await axios.put(
-      "http://localhost:5000/transaction",
-      {
-        id,
-        cancelled,
-      },
-      { withCredentials: true }
-    )
+  const cancelTransactionMutation = useMutation({
+    mutationFn: async () => {
+      await updateTransaction({ id, cancelled: true })
+    },
+    mutationKey: ["cancel_mutation"],
+    onSuccess() {
+      router.push("/dashboard")
+    },
+  })
 
-    return request.data
-  }
+  const continueTransactionMutation = useMutation({
+    mutationFn: async () => {
+      await updateTransaction({ id, cancelled: false })
+      await updateUser(transaction)
+    },
+    mutationKey: ["continue_mutation"],
+    onSuccess() {
+      router.push("/dashboard")
+    },
+  })
 
-  const updateUser = async (transaction: Object) => {
-    const request = await axios.put(
-      "http://localhost:5000/user",
-      {
-        transaction,
-      },
-      { withCredentials: true }
-    )
-
-    return request.data
-  }
-
-  const handleContinue = async () => {
-    await updateTransaction({ id, cancelled: false })
-    await updateUser(transaction)
-    router.push("/dashboard")
-  }
+  const handleContinue = async () => continueTransactionMutation.mutate()
 
   const handleCancel = async () => {
     if (code !== email_key) {
@@ -61,8 +48,7 @@ export default function FlaggedTransaction({
         setError("")
       }, 3000)
     } else {
-      await updateTransaction({ id, cancelled: true })
-      router.push("/dashboard")
+      cancelTransactionMutation.mutate()
     }
   }
 
@@ -93,16 +79,18 @@ export default function FlaggedTransaction({
           </div>
         </div>
         <Button
-          className="mt-8 bg-red-500 text-white w-full rounded-md text-sm font-medium hover:opacity-75"
+          className="mt-8 bg-red-500 text-white w-full rounded-md text-sm font-medium hover:opacity-75 disabled:opacity-50"
           onClick={handleCancel}
+          disabled={cancelTransactionMutation.isPending}
         >
           Cancel Transaction
         </Button>
         <br />
         <h1 className="text-center">(OR)</h1>
         <Button
-          className="mt-8 bg-[#5651e5] text-white w-full rounded-md text-sm font-medium hover:opacity-75"
+          className="mt-8 bg-[#5651e5] text-white w-full rounded-md text-sm font-medium hover:opacity-75 disabled:opacity-50"
           onClick={handleContinue}
+          disabled={continueTransactionMutation.isPending}
         >
           Continue Transaction
         </Button>
