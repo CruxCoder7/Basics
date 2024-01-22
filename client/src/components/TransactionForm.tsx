@@ -53,11 +53,8 @@ export function TransactionForm({
   const transactionMutation = useMutation({
     mutationFn: transactionFn,
     onSuccess(data) {
-      console.log(data.data.msg)
       if (data.data.msg === "unflagged") router.push("/dashboard")
-      if (data.data.msg === "email sent") {
-        notifyWarning()
-      }
+      if (data.data.msg === "email sent") notifyWarning()
     },
     onError(error) {
       notifyError(error.message)
