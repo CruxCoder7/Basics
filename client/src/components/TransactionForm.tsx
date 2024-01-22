@@ -13,6 +13,8 @@ import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 export function TransactionForm({
   user,
@@ -28,8 +30,6 @@ export function TransactionForm({
     category: "",
     name: user.name,
   })
-
-  const [message, setMessage] = useState("")
 
   const router = useRouter()
 
@@ -47,17 +47,20 @@ export function TransactionForm({
     })
   }
 
+  const notifyWarning = () => toast.warning(`Check you email: ${user.email}`)
+  const notifyError = (msg: string) => toast.error(msg)
+
   const transactionMutation = useMutation({
     mutationFn: transactionFn,
     onSuccess(data) {
       console.log(data.data.msg)
       if (data.data.msg === "unflagged") router.push("/dashboard")
       if (data.data.msg === "email sent") {
-        setMessage("URGENT! Check your email:")
+        notifyWarning()
       }
     },
     onError(error) {
-      setMessage(error.message)
+      notifyError(error.message)
     },
   })
 
@@ -162,10 +165,8 @@ export function TransactionForm({
         >
           Cancel
         </Button>
+        <ToastContainer theme="dark" />
       </CardFooter>
-      <p className="text-2xl text-red-700 text-center">
-        {message} {message.length > 0 && user.email}
-      </p>
     </Card>
   )
 }
