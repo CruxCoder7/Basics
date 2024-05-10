@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 export const send_mail = async (
   to_address: string,
@@ -12,7 +12,7 @@ export const send_mail = async (
       user: "akashrangesh03@gmail.com",
       pass: process.env.MAIL_PASS,
     },
-  })
+  });
 
   const mailOptions = {
     from: "akashrangesh03@gmail.com",
@@ -23,17 +23,17 @@ export const send_mail = async (
            Go to <a href="http://localhost:3000/transaction/${transaction_id}">this link</a> and type the above code to cancel your transaction.
            <br/>
            If you want to proceed, click the <b>Proceed</b> button on the page.`,
-  }
+  };
 
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
-        console.log(error)
-        reject(false)
+        console.log('inside', error);
+        resolve(false);
       } else {
-        console.log("Email sent: " + info)
-        resolve(true)
+        console.log("Email sent: " + info);
+        resolve(true);
       }
-    })
-  })
-}
+    });
+  });
+};

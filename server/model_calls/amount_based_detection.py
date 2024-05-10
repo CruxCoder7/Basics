@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import json
 
-def test():
+def amount_based_detection():
     arg = json.loads(sys.argv[1])
     amount = arg['amount']
     model_path = arg['model_path']
@@ -16,4 +16,4 @@ def test():
     else:
         print('Normal')
 
-test()
+amount_based_detection()
